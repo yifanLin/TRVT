@@ -1,0 +1,6 @@
+dash 1.19.0 (install with cmd: 'pip install dash')
+dash_bio 0.6.1 (install with cmd: 'pip install dash-bio==0.6.1')
+dash_html_components 1.1.2 (install with cmd: 'pip install dash_html_components')
+dash_core_components 1.15.0 (install with cmd: 'pip install dash_core_components')
+pandas 1.0.1
+numpy 1.18.1
