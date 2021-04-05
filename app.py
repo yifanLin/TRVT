@@ -53,7 +53,7 @@ def DE_filter(df, lfc, padj, tpList):
         df[str(tp_num)+'lfcpass'] = numpy.where(abs(df[lfcname]) > lfc, True, False)
         df[str(tp_num)+'padjpass'] = numpy.where(df[padjname] < padj, True, False)
     
-    if tpList == ['all']:
+    if 'all' in tpList:
         tpList = tp
     for i in tpList:
         df = df[df[i[:-2]+'lfcpass']==True]
