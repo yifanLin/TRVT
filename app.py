@@ -22,7 +22,7 @@ import io
 # define const: external stylesheet, groups, time points, colors, and string const
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 groups = ['all genes', 'differentially expressed genes']
-tp = ['1hr', '2hr', '3hr', '4hr' , '6hr' , '9hr', '12hr', '16hr', '20hr', '24hr' ]
+tp = ['1hr', '2hr', '3hr', '4hr' , '6hr' , '9hr', '12hr', '16hr', '20hr', '24hr']
 colors = {
     'background': '#ffffff',
     'text': '#111111'
@@ -52,6 +52,9 @@ def DE_filter(df, lfc, padj, tpList):
         lfcname = condition+tp_num+l
         df[str(tp_num)+'lfcpass'] = numpy.where(abs(df[lfcname]) > lfc, True, False)
         df[str(tp_num)+'padjpass'] = numpy.where(df[padjname] < padj, True, False)
+    
+    if tpList == ['all']:
+        tpList = tp
     for i in tpList:
         df = df[df[i[:-2]+'lfcpass']==True]
         df = df[df[i[:-2]+'padjpass']==True]
@@ -252,7 +255,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background'], 'width': '
                 {'label': '12hr', 'value': '12hr'},
                 {'label': '16hr', 'value': '16hr'},
                 {'label': '20hr', 'value': '20hr'},
-                {'label': '24hr', 'value': '24hr'}],
+                {'label': '24hr', 'value': '24hr'},
+                {'label': 'all', 'value': 'all'}],         
             value=[],
             labelStyle={'display': 'inline-block'}),
         style={'display': 'inline-block'}), 
@@ -347,8 +351,6 @@ def upload_file(contents, filenames, lastMods):
     [dash.dependencies.Input('volcano-tp-input', 'value'),
     dash.dependencies.Input('volcanoplot-input-lfc', 'value')])
 def update_volcanoplot(tp, lfc):
-    # print(tp)
-    # print(lfc)
     if tp == None:
         tp = '1hr'
     padjCol = 'OSvsPS'+tp[0]+'_Padjusted'
@@ -391,12 +393,10 @@ def update_volcanoplot(tp, lfc):
     [dash.dependencies.State('lfcinput', 'value')],
     [dash.dependencies.State('padjinput', 'value')])
 def update_clustergram(group, lfcClicks, padjClicks, tp, lfc, padj):    
-    # print(tp)
-    # print(group)
     displaydf = list()
     if group == groups[0]:
         displaydf = list(df['GeneName'][0:1000])
-
+    
     elif group == groups[1] and len(tp) == 0 :
         return {
         "layout": {
@@ -416,7 +416,12 @@ def update_clustergram(group, lfcClicks, padjClicks, tp, lfc, padj):
     elif group == groups[1] and len(tp) != 0 :
         newdf = DE_filter(df, lfc, padj, tp)
         displaydf = list(newdf['GeneName'])
-    
+
+    elif 'all' in tp:
+        tp_temp = ['1hr', '2hr', '3hr', '4hr' , '6hr' , '9hr', '12hr', '16hr', '20hr', '24hr']
+        newdf = DE_filter(df, lfc, padj, tp_temp)
+        displaydf = list(newdf['GeneName'])
+
     fig = dashbio.Clustergram(
         row_labels=displaydf,
         column_labels=[i for i in columns if l in i],
